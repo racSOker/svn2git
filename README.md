@@ -5,20 +5,20 @@ A modified version of https://github.com/schwern/svn2git/ in Bash Script
 
 ## Installation:
 
-Just copy svn2git.sh to your system
+Just copy ```svn2git.sh``` to your system
 
 **Requirements:**
-* git 2.20.1
-* git-svn 2.20.1 (svn 1.10.0)
-* getopt 1.1.6
+* **git** 2.20.1
+* **git-svn** 2.20.1 (svn 1.10.0)
+* **getopt** 1.1.6
 
 **Note:**
 It may work on lower versions but I tested it on the specified list
 
 ## Execution and parameters
-Excute by putting the script on your PATH envirnoment variable o by typing:
+Excute by putting the script on your ```PATH``` environment variable or by typing:
 
-```./svn2git.sh [OPTIONS] <SVN_URL>```
+```<PATH_TO_SCRIPT>/svn2git.sh [OPTIONS] <SVN_URL>```
 
 ```SVN_URL```: Specifies the subversion url where your current project lives.
 
