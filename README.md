@@ -13,7 +13,7 @@ Just copy svn2git.sh to your system
 * getopt 1.1.6
 
 **Note:**
-It may work on lower versions but I tested on the specified list
+It may work on lower versions but I tested it on the specified list
 
 ## Execution and parameters
 Excute by putting the script on your PATH envirnoment variable o by typing:
@@ -25,13 +25,13 @@ Excute by putting the script on your PATH envirnoment variable o by typing:
 **OPTIONS**
 
 * **--verbose**: Prints debug messages and git commands being executed
-* **--notrunk**: Indicates to git that there is no **trunk** path in the current repository
-* **--no-branches**: Indicates to git that there is no **branches** path in the current repository
-* **--notags**: Indicates to git that there is no **tags** path in the current repository
+* **--notrunk**: Indicates git that there is no **trunk** path in the current repository
+* **--no-branches**: Indicates git that there is no **branches** path in the current repository
+* **--notags**: Indicates git that there is no **tags** path in the current repository
 * **--logrev**: NOT YET SUPPORTED
 * **--trunk**: The path to trunk in svn repositoroy by default **trunk**
-* **--branches**: The path to branches in svn repositoroy by default **branches**
-* **--tags**: The path to tags in svn repositoroy by default **tags**
+* **--branches**: The path to branches in svn repository by default **branches**
+* **--tags**: The path to tags in svn repository by default **tags**
 * **--authors**: The path to authors file
 * **--no-metadata**: Tells git-svn to process repository with no metadata
 * **--help**: Information about the script

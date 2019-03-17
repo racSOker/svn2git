@@ -4,6 +4,42 @@
 
 PREFIX="svn/"
 
+help () {
+    echo -e "\n"
+    echo "Usage: ./svn2git.sh [OPTIONS] <SVN_URL>"
+    echo -e "\n"
+    echo -e "\tSVN_URL: Specifies the subversion url where your current project lives."
+    echo -e "\n"
+    echo "OPTIONS"
+    echo -e "\n"
+    echo -e "\t--verbose: Prints debug messages and git commands being executed"
+    echo -e "\t--notrunk: Indicates git that there is no trunk path in the current repository"
+    echo -e "\t--no-branches: Indicates git that there is no branches path in the current repository"
+    echo -e "\t--notags: Indicates git that there is no tags path in the current repository"
+    echo -e "\t--logrev: NOT YET SUPPORTED"
+    echo -e "\t--trunk: The path to trunk in svn repository by default trunk"
+    echo -e "\t--branches: The path to branches in svn repository by default branches"
+    echo -e "\t--tags: The path to tags in svn repository by default tags"
+    echo -e "\t--authors: The path to authors file"
+    echo -e "\t--no-metadata: Tells git-svn to process repository with no metadata"
+    echo -e "\t--help: Information about the script"
+    echo -e "\n"
+    exit 0
+}
+
+main(){
+    check_env;
+    clone;
+    fix_elements;
+    run git checkout master
+    gc
+    success "Process finished, listing elements in the repository"
+    echo "BRANCHES:"
+    run git branch -l
+    echo "TAGS:"
+    run git tag -l
+}
+
 die () {
     echo -e "\x1B[91m \xE2\x9D\x8C $* \x1B[0m" >&2
     exit 1;
@@ -16,6 +52,7 @@ log () {
 success () {
     echo -e "\x1B[32m \xE2\x9C\x94 $* \x1B[0m\n"
 }
+
 debug () {
     [ $verbose = true ] && echo -e "$*\n"
 }
@@ -30,21 +67,10 @@ run (){
     [ $? != 0 ] && die "Error in last command:\n\t[$*]"
     return 0;
 }
-main(){
-    check_env;
-    clone;
-    fix_elements;
-    run git checkout master
-    success "Process finished, showing elements in the repository"
-    run git branch -l
-    run git tag -l
-
-}
 
 clone(){
-    
     if [ -z "$SVN_URL" ]; then
-        die "usage: $0 [options] <SVN_URL>";
+        help
     fi
     log "Initializing git repo"
     git_init_cmd="git svn init --prefix=$PREFIX $no_metadata"
@@ -63,7 +89,6 @@ clone(){
     git_fetch_cmd="git svn $authors fetch"
     run $git_fetch_cmd
     success "Successfully cloned $SVN_URL into local git repo $PWD"
-    
 }
 
 fix_elements(){
@@ -84,8 +109,6 @@ fix_elements(){
             ;;
         esac
     done
-    
-    
 }
 
 tag(){
@@ -102,7 +125,6 @@ tag(){
     run "git" "checkout"  $remote_branch
     run "git" "tag" $tag_name
     success $remote_branch tagged as $tag_name!!
-    
 }
 
 branch(){
@@ -120,7 +142,6 @@ branch(){
     run "git" "checkout"  $remote_branch
     run "git" "checkout" "-b" $branch_name
     success $remote_branch locally branched as $branch_name!!
-    
 }
 
 fix_trunk(){
@@ -141,7 +162,15 @@ fix_trunk(){
 check_env (){
     $(git --version);
     if [ $? -ne 0 ]; then
-        die "You should install git first!\n";
+        die "You should install git first!\n"
+    fi
+}
+
+gc() {
+    debug "Realizando tareas de limpieza"
+    run git gc --quiet;
+    if [ $? -eq 0 ]; then
+        success "Successfully cleaned the repository\n"
     fi
 }
 
@@ -164,6 +193,7 @@ tags="tags"
 no_trunk=false
 no_branches=false
 no_tags=false
+help=false
 authors=
 tag_prefix=
 no_metadata=
@@ -179,7 +209,7 @@ while true; do
         --tags ) tags="$2"; shift 2 ;;
         --authors) authors="$2"; shift 2 ;;
         --no-metadata) no_metadata="--no-metadata"; shift ;;
-        --help) help; shift ;;
+        --help) help=true; shift ;;
         -- ) shift; break ;;
         * ) break ;;
     esac
@@ -187,4 +217,7 @@ done
 
 SVN_URL=$1
 # Run
+if [ $help -eq true ] || [ $# = 0 ]; then
+    help
+fi
 main
