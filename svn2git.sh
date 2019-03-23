@@ -2,6 +2,9 @@
 
 # A modified version of https://github.com/schwern/svn2git/ but in Bash Script beacause.. why not!!!
 
+# If your running this script on mac os x you must install gnu-getopts execute:
+#   brew install gnu-getopt
+#   export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
 PREFIX="svn/"
 
 help () {
@@ -14,9 +17,9 @@ help () {
     echo -e "\n"
     echo -e "\t--verbose: Prints debug messages and git commands being executed"
     echo -e "\t--notrunk: Indicates git that there is no trunk path in the current repository"
-    echo -e "\t--no-branches: Indicates git that there is no branches path in the current repository"
+    echo -e "\t--nobranches: Indicates git that there is no branches path in the current repository"
     echo -e "\t--notags: Indicates git that there is no tags path in the current repository"
-    echo -e "\t--logrev: NOT YET SUPPORTED"
+    echo -e "\t--logrev: Tries to identify the first revision for the current SVN URL"
     echo -e "\t--trunk: The path to trunk in svn repository by default trunk"
     echo -e "\t--branches: The path to branches in svn repository by default branches"
     echo -e "\t--tags: The path to tags in svn repository by default tags"
@@ -58,7 +61,7 @@ debug () {
 }
 
 warn () {
-    echo -e "\x1B[93m$*\n\x1B[0"
+    echo -e "\x1B[93m ! $*\x1B[0m\n"
 }
 
 run (){
@@ -84,9 +87,20 @@ clone(){
     done
     debug "git svn layout ${git_init_opts[@]}"
     run $git_init_cmd ${git_init_opts[@]} $SVN_URL
-    
+
+    revision=""
+    if [ ! -z "$log_revision" ]; then
+        warn "Looking for first revision $SVN_URL"
+        rev=($(svn log -r 1:HEAD --limit 1 $SVN_URL | grep -e "^r" | awk {'print $1}'))
+        if [ -z "$rev" ]; then
+            die "Starting revision not found for $SVN_URL"
+        else
+            revision="-$rev:HEAD"
+            success "Successfully found starting revision [$rev] for $SVN_URL"
+        fi
+    fi
     [ ! -z "$authors" ] && authors="--authors-file=$authors"
-    git_fetch_cmd="git svn $authors fetch"
+    git_fetch_cmd="git svn $revision $authors fetch"
     run $git_fetch_cmd
     success "Successfully cloned $SVN_URL into local git repo $PWD"
 }
@@ -176,7 +190,7 @@ gc() {
 
 # Execution begins
 # Configure options for this script
-OPTIONS=`getopt -o t --long help,verbose,logrev,no-branches,notrunk,notags,no-metadata\
+OPTIONS=`getopt -o t --long help,verbose,logrev,nobranches,notrunk,notags,no-metadata\
 ,trunk:,branches:,tags:,authors: -- "$@"`
 
 [ $? -eq 0 ] || {
@@ -197,11 +211,12 @@ help=false
 authors=
 tag_prefix=
 no_metadata=
+help=false
 while true; do
     case "$1" in
         --verbose ) verbose=true; shift ;;
         --notrunk ) no_trunk=true; shift ;;
-        --no-branches ) no_branches=true; shift ;;
+        --nobranches ) no_branches=true; shift ;;
         --notags ) no_tags=true; shift ;;
         --logrev ) log_revision=true; shift ;;
         --trunk ) trunk="$2"; shift 2 ;;

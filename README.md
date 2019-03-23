@@ -26,17 +26,12 @@ Excute by putting the script on your ```PATH``` environment variable or by typin
 
 * **--verbose**: Prints debug messages and git commands being executed
 * **--notrunk**: Indicates git that there is no **trunk** path in the current repository
-* **--no-branches**: Indicates git that there is no **branches** path in the current repository
+* **--nobranches**: Indicates git that there is no **branches** path in the current repository
 * **--notags**: Indicates git that there is no **tags** path in the current repository
-* **--logrev**: NOT YET SUPPORTED
+* **--logrev**: Tries to identify the first revision for the current SVN URL before the checkout process, this will be especially useful for big repositories
 * **--trunk**: The path to trunk in svn repositoroy by default **trunk**
 * **--branches**: The path to branches in svn repository by default **branches**
 * **--tags**: The path to tags in svn repository by default **tags**
 * **--authors**: The path to authors file
 * **--no-metadata**: Tells git-svn to process repository with no metadata
 * **--help**: Information about the script
-
-
-
-
-
