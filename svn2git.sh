@@ -36,6 +36,7 @@ main(){
     fix_elements;
     run git checkout master
     gc
+    post
     success "Process finished, listing elements in the repository"
     echo "BRANCHES:"
     run git branch -l
@@ -89,7 +90,7 @@ clone(){
     run $git_init_cmd ${git_init_opts[@]} $SVN_URL
 
     revision=""
-    if [ ! -z "$log_revision" ]; then
+    if [ true = "$log_revision" ]; then
         warn "Looking for first revision $SVN_URL"
         rev=($(svn log -r 1:HEAD --limit 1 $SVN_URL | grep -e "^r" | awk {'print $1}'))
         if [ -z "$rev" ]; then
@@ -172,6 +173,13 @@ fix_trunk(){
     success $remote_branch mastered!!
     
 }
+
+post() {
+    run "git" "svn" "show-ignore" ">" ".gitignore"
+    run "git" "add" ".gitignore"
+    run "git" "commit" "-m" "\"Ignored elements added\""
+    success "Ignored elements added to .gitignore"
+} 
 
 check_env (){
     $(git --version);
