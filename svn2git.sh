@@ -19,10 +19,10 @@ help () {
     echo -e "\t--notrunk: Indicates git that there is no trunk path in the current repository"
     echo -e "\t--nobranches: Indicates git that there is no branches path in the current repository"
     echo -e "\t--notags: Indicates git that there is no tags path in the current repository"
-    echo -e "\t--logrev: Tries to identify the first revision for the current SVN URL"
-    echo -e "\t--trunk: The path to trunk in svn repository by default trunk"
-    echo -e "\t--branches: The path to branches in svn repository by default branches"
-    echo -e "\t--tags: The path to tags in svn repository by default tags"
+    echo -e "\t--logrev: Tries to identify the initial revision for the current SVN URL"
+    echo -e "\t--trunk: The path to trunk in svn repository, <trunk> by default"
+    echo -e "\t--branches: The path to branches in svn repository, <branches> by default"
+    echo -e "\t--tags: The path to tags in svn repository, <tags> by default"
     echo -e "\t--authors: The path to authors file"
     echo -e "\t--no-metadata: Tells git-svn to process repository with no metadata"
     echo -e "\t--help: Information about the script"
@@ -92,12 +92,12 @@ clone(){
     revision=""
     if [ true = "$log_revision" ]; then
         warn "Looking for first revision $SVN_URL"
-        rev=($(svn log -r 1:HEAD --limit 1 $SVN_URL | grep -e "^r" | awk {'print $1}'))
+        rev=($(svn log -r 1:HEAD --limit 1 $SVN_URL | grep -a -e "^r" | awk {'print $1}'))
         if [ -z "$rev" ]; then
-            die "Starting revision not found for $SVN_URL"
+            die "Initial revision not found for $SVN_URL"
         else
             revision="-$rev:HEAD"
-            success "Successfully found starting revision [$rev] for $SVN_URL"
+            success "Successfully found initial revision [$rev] for $SVN_URL"
         fi
     fi
     [ ! -z "$authors" ] && authors="--authors-file=$authors"
@@ -219,7 +219,6 @@ help=false
 authors=
 tag_prefix=
 no_metadata=
-help=false
 while true; do
     case "$1" in
         --verbose ) verbose=true; shift ;;
@@ -240,7 +239,7 @@ done
 
 SVN_URL=$1
 # Run
-if [ $help -eq true ] || [ $# = 0 ]; then
+if [ $help = true ] || [ $# = 0 ]; then
     help
 fi
 main
