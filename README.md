@@ -34,4 +34,5 @@ Excute by putting the script on your ```PATH``` environment variable or by typin
 * **--tags**: The path to tags in svn repository by default **tags**
 * **--authors**: The path to authors file
 * **--no-metadata**: Tells git-svn to process repository with no metadata
+* **--unstoppable**: Force the execution of this script in spite of local branch/tag errors
 * **--help**: Information about the script

@@ -25,6 +25,7 @@ help () {
     echo -e "\t--tags: The path to tags in svn repository, <tags> by default"
     echo -e "\t--authors: The path to authors file"
     echo -e "\t--no-metadata: Tells git-svn to process repository with no metadata"
+    echo .e "\t--unstoppable: Force the execution of this script in spite of local branch/tag errors"
     echo -e "\t--help: Information about the script"
     echo -e "\n"
     exit 0
@@ -69,6 +70,14 @@ run (){
     debug "running [$@]"
     eval "$@"
     [ $? != 0 ] && die "Error in last command:\n\t[$*]"
+    return 0;
+}
+
+#This function name was provided by Lyz
+run_and_maybe_die (){
+    debug "running [$@]"
+    eval "$@"
+    [ $? != 0 ] && [ false = $do_not_stop_me_now ] &&  die "Error in last command:\n\t[$*]"
     return 0;
 }
 
@@ -138,7 +147,7 @@ tag(){
     tag_name="${branch_elements[@]: -1:1}"
     
     run "git" "checkout"  $remote_branch
-    run "git" "tag" $tag_name
+    run_and_maybe_die "git" "tag" $tag_name
     success $remote_branch tagged as $tag_name!!
 }
 
@@ -155,7 +164,7 @@ branch(){
     branch_name="${branch_elements[@]: -1:1}"
     
     run "git" "checkout"  $remote_branch
-    run "git" "checkout" "-b" $branch_name
+    run_and_maybe_die "git" "checkout" "-b" $branch_name
     success $remote_branch locally branched as $branch_name!!
 }
 
@@ -198,7 +207,7 @@ gc() {
 
 # Execution begins
 # Configure options for this script
-OPTIONS=`getopt -o t --long help,verbose,logrev,nobranches,notrunk,notags,no-metadata\
+OPTIONS=`getopt -o t --long help,verbose,unstoppable,logrev,nobranches,notrunk,notags,no-metadata\
 ,trunk:,branches:,tags:,authors: -- "$@"`
 
 [ $? -eq 0 ] || {
@@ -219,6 +228,7 @@ help=false
 authors=
 tag_prefix=
 no_metadata=
+do_not_stop_me_now=false
 while true; do
     case "$1" in
         --verbose ) verbose=true; shift ;;
@@ -231,6 +241,7 @@ while true; do
         --tags ) tags="$2"; shift 2 ;;
         --authors) authors="$2"; shift 2 ;;
         --no-metadata) no_metadata="--no-metadata"; shift ;;
+        --unstoppable) do_not_stop_me_now=true; shift ;; # 'cause I'm having a good time
         --help) help=true; shift ;;
         -- ) shift; break ;;
         * ) break ;;
