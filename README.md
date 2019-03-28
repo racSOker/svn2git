@@ -11,6 +11,7 @@ Just copy ```svn2git.sh``` to your system
 * **git** 2.20.1
 * **git-svn** 2.20.1 (svn 1.10.0)
 * **getopt** 1.1.6
+* **svn** 1.11.1
 
 **Note:**
 It may work on lower versions but I tested it on the specified list
